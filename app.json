@@ -1,4 +1,20 @@
 {
-  "name": "react_native",
-  "displayName": "react_native"
+  "expo": {
+    "name": "react_native",
+    "slug": "react_native",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.reactnative.app"
+    },
+    "android": {
+      "package": "com.reactnative.app"
+    },
+    "scheme": "react_native",
+    "plugins": [
+      "expo-asset"
+    ]
+  }
 }
