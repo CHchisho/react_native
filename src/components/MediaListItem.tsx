@@ -1,9 +1,13 @@
 import React from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
-import type {MediaItemWithOwner} from '../../types/DBTypes';
-import {useUserContext} from '../../hooks/ContextHooks';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { MediaItemWithOwner } from '../../types/DBTypes';
+import type { RootStackParamList } from '../../navigators/Navigator';
+import { useUserContext } from '../../hooks/ContextHooks';
+import { colors } from '../constants/theme';
 
 type MediaListItemProps = {
+  navigation?: NativeStackNavigationProp<RootStackParamList, 'Tabs'> | undefined;
   item: MediaItemWithOwner;
   onView: (item: MediaItemWithOwner) => void;
   onModify?: (item: MediaItemWithOwner) => void;
@@ -11,6 +15,7 @@ type MediaListItemProps = {
 };
 
 const MediaListItem = ({
+  navigation,
   item,
   onView,
   onModify,
@@ -23,12 +28,20 @@ const MediaListItem = ({
   return (
     <View style={styles.row}>
       <View style={styles.thumbnailCell}>
-        <Image
-          source={{uri: item.thumbnail}}
-          style={styles.thumbnail}
-          resizeMode="cover"
-          accessibilityLabel={item.title}
-        />
+        <TouchableOpacity
+          onPress={() => {
+            navigation?.navigate('Single', { item });
+          }}
+          activeOpacity={0.7}
+          accessibilityLabel={`View ${item.title}`}
+        >
+          <Image
+            source={{ uri: item.thumbnail }}
+            style={styles.thumbnail}
+            resizeMode="cover"
+            accessibilityLabel={item.title}
+          />
+        </TouchableOpacity>
       </View>
       <View style={styles.cell}>
         <Text style={styles.text} numberOfLines={2}>
@@ -137,11 +150,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: '#e63946',
+    borderColor: colors.accent,
     borderRadius: 6,
   },
   buttonText: {
-    color: '#e63946',
+    color: colors.accent,
     fontSize: 14,
     fontWeight: '500',
   },

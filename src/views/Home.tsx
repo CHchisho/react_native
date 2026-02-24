@@ -1,13 +1,23 @@
-import {View, Text, FlatList, StyleSheet} from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MediaListItem from '../components/MediaListItem';
-import {useMedia} from '../../hooks/apiHooks';
-import type {MediaItemWithOwner} from '../../types/DBTypes';
+import { useMedia } from '../../hooks/apiHooks';
+import type { MediaItemWithOwner } from '../../types/DBTypes';
+import type { RootStackParamList } from '../../navigators/Navigator';
+import { colors } from '../constants/theme';
 
-const Home = () => {
-  const {mediaArray} = useMedia();
+type HomeScreenProps = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
+};
+
+const Home = ({ navigation }: HomeScreenProps) => {
+  const { mediaArray } = useMedia();
+  const stackNavigation = navigation.getParent() as
+    | NativeStackNavigationProp<RootStackParamList, 'Tabs'>
+    | undefined;
 
   const handleView = (item: MediaItemWithOwner) => {
-    console.log('view', item);
+    stackNavigation?.navigate('Single', { item });
   };
 
   const handleModify = (item: MediaItemWithOwner) => {
@@ -18,8 +28,9 @@ const Home = () => {
     console.log('delete', item);
   };
 
-  const renderItem = ({item}: {item: MediaItemWithOwner}) => (
+  const renderItem = ({ item }: { item: MediaItemWithOwner }) => (
     <MediaListItem
+      navigation={stackNavigation}
       item={item}
       onView={handleView}
       onModify={handleModify}
@@ -67,8 +78,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingBottom: 8,
     borderBottomWidth: 2,
-    borderBottomColor: '#60a5fa',
-    color: '#60a5fa',
+    borderBottomColor: colors.accent,
+    color: colors.accent,
     alignSelf: 'flex-start',
   },
   table: {
@@ -82,7 +93,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 8,
     borderBottomWidth: 2,
-    borderBottomColor: '#60a5fa',
+    borderBottomColor: colors.accent,
     backgroundColor: '#374151',
     alignItems: 'center',
   },
@@ -90,7 +101,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 60,
     marginRight: 8,
-    color: '#60a5fa',
+    color: colors.accent,
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'uppercase',
