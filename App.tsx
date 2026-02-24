@@ -1,16 +1,18 @@
-import {StatusBar} from 'expo-status-bar';
-import {Text, View} from 'react-native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { UserProvider } from './contexts/UserContext';
+import Home from './src/views/Home';
 
 const App = () => {
   return (
     <SafeAreaProvider>
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text style={{fontSize: 20, fontWeight: 'bold'}}>
-          Hello, React Native!
-        </Text>
-      </View>
-      <StatusBar style="auto" />
+      <UserProvider>
+        <View style={{ flex: 1 }}>
+          <Home />
+        </View>
+        <StatusBar style="auto" />
+      </UserProvider>
     </SafeAreaProvider>
   );
 };
