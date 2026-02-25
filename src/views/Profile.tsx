@@ -1,25 +1,12 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../constants/theme';
+import { View } from 'react-native';
+import { Text } from '@rneui/themed';
 
 const Profile = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Profile</Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text h4>Profile</Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#111827',
-  },
-  text: {
-    fontSize: 24,
-    color: colors.accent,
-  },
-});
 
 export default Profile;
