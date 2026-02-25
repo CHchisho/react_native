@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { Text } from 'react-native';
+import { Icon } from '@rneui/themed';
 import { colors } from '../src/constants/theme';
 import Home from '../src/views/Home';
 import Single from '../src/views/Single';
@@ -10,7 +10,7 @@ import type { MediaItemWithOwner } from '../types/DBTypes';
 
 export type RootStackParamList = {
   Tabs: undefined;
-  Single: {item: MediaItemWithOwner};
+  Single: { item: MediaItemWithOwner };
 };
 
 const Tab = createBottomTabNavigator();
@@ -23,9 +23,14 @@ const TabScreen = () => {
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: '#9ca3af',
         tabBarIcon: ({ color, size }) => (
-          <Text style={{ color, fontSize: size ?? 24 }}>
-            {route.name === 'Home' ? '⌂' : '👤'}
-          </Text>
+          <Icon
+            type="material"
+            iconProps={{
+              name: route.name === 'Home' ? 'home' : 'person',
+              size: size ?? 24,
+              color,
+            }}
+          />
         ),
       })}
     >

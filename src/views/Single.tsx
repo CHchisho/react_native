@@ -1,7 +1,8 @@
-import {View, Text, Image, ScrollView, StyleSheet} from 'react-native';
+import {Image, ScrollView} from 'react-native';
+import {Text, Card, Divider} from '@rneui/themed';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../../navigators/Navigator';
-import {colors} from '../constants/theme';
+import {useVideoPlayer, VideoView} from 'expo-video';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Single'>;
 
@@ -12,108 +13,61 @@ const Single = ({route}: Props) => {
 
   return (
     <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
+      style={{flex: 1}}
+      contentContainerStyle={{padding: 16, paddingBottom: 32}}
     >
-      <Text style={styles.title}>{item.title}</Text>
+      <Text h4 style={{marginBottom: 16}}>
+        {item.title}
+      </Text>
 
       {item.description != null && item.description !== '' && (
-        <View style={styles.section}>
-          <Text style={styles.label}>Description</Text>
-          <Text style={styles.text}>{item.description}</Text>
-        </View>
+        <Card>
+          <Card.Title>Description</Card.Title>
+          <Divider />
+          <Text>{item.description}</Text>
+        </Card>
       )}
 
-      {isImage && (
-        <View style={styles.section}>
-          <Image
-            source={{uri: item.thumbnail}}
-            style={styles.image}
-            resizeMode="contain"
-            accessibilityLabel={item.title}
-          />
-        </View>
-      )}
-
-      {isVideo && (
-        <View style={styles.section}>
-          <Text style={styles.textMuted}>Type: {item.media_type}</Text>
-        </View>
-      )}
+      <Card containerStyle={{marginTop: 16}}>
+        <Image
+          source={{uri: item.thumbnail}}
+          style={{width: '100%', aspectRatio: 16 / 10, borderRadius: 8}}
+          resizeMode="contain"
+          accessibilityLabel={item.title}
+        />
+      </Card>
 
       {!isImage && !isVideo && (
-        <View style={styles.section}>
-          <Text style={styles.textMuted}>Media type: {item.media_type}</Text>
-        </View>
+        <Card containerStyle={{marginTop: 16}}>
+          <Text style={{color: '#86939e'}}>Media type: {item.media_type}</Text>
+        </Card>
       )}
 
-      <View style={styles.section}>
-        <Text style={styles.label}>Created</Text>
-        <Text style={styles.text}>
-          {new Date(item.created_at).toLocaleString('fi-FI')}
-        </Text>
-      </View>
+      <Card containerStyle={{marginTop: 16}}>
+        <Card.Title>Created</Card.Title>
+        <Divider />
+        <Text>{new Date(item.created_at).toLocaleString('fi-FI')}</Text>
+      </Card>
 
-      <View style={styles.section}>
-        <Text style={styles.label}>Size</Text>
-        <Text style={styles.text}>{item.filesize}</Text>
-      </View>
+      <Card containerStyle={{marginTop: 16}}>
+        <Card.Title>Size</Card.Title>
+        <Divider />
+        <Text>{item.filesize}</Text>
+      </Card>
 
-      <View style={styles.section}>
-        <Text style={styles.label}>Type</Text>
-        <Text style={styles.text}>{item.media_type}</Text>
-      </View>
+      <Card containerStyle={{marginTop: 16}}>
+        <Card.Title>Type</Card.Title>
+        <Divider />
+        <Text>{item.media_type}</Text>
+      </Card>
 
-      <View style={styles.section}>
-        <Text style={styles.label}>Owner</Text>
-        <Text style={styles.text}>{item.username}</Text>
-      </View>
+      <Card containerStyle={{marginTop: 16}}>
+        <Card.Title>Owner</Card.Title>
+        <Divider />
+        <Text>{item.username}</Text>
+      </Card>
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#111827',
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: colors.accent,
-    marginBottom: 16,
-  },
-  section: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    color: '#9ca3af',
-    marginBottom: 4,
-  },
-  text: {
-    fontSize: 16,
-    color: '#e5e7eb',
-  },
-  textMuted: {
-    fontSize: 14,
-    color: '#9ca3af',
-    marginBottom: 4,
-  },
-  image: {
-    width: '100%',
-    aspectRatio: 16 / 10,
-    borderRadius: 8,
-    backgroundColor: '#1f2937',
-  },
-});
 
 export default Single;
