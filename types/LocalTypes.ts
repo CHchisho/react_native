@@ -6,8 +6,10 @@ type RegisterCredentials = Pick<User, 'username' | 'password' | 'email'>;
 
 type AuthContextType = {
   user: UserWithNoPassword | null;
-  handleLogin: (credentials: Credentials) => void;
-  handleLogout: () => void;
+  setUser: (user: UserWithNoPassword | null) => void;
+  handleLogin: (credentials: Credentials) => Promise<void>;
+  handleLogout: () => Promise<void>;
+  handleAutoLogin: () => Promise<void>;
 };
 
 export type { AuthContextType, Credentials, RegisterCredentials };
