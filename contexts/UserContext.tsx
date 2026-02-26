@@ -1,8 +1,12 @@
-import React, { createContext, useState, useCallback } from 'react';
+import React, {createContext, useState, useCallback} from 'react';
 import * as SecureStore from 'expo-secure-store';
-import type { UserWithNoPassword } from '../types/DBTypes';
-import type { AuthContextType, Credentials } from '../types/LocalTypes';
-import { useAuthentication, useUser } from '../hooks/apiHooks';
+import type {UserWithNoPassword} from '../types/DBTypes';
+import type {
+  AuthContextType,
+  Credentials,
+  UserUpdateCredentials,
+} from '../types/LocalTypes';
+import {useAuthentication, useUser} from '../hooks/apiHooks';
 
 const TOKEN_KEY = 'token';
 
@@ -12,10 +16,10 @@ type UserProviderProps = {
   children: React.ReactNode;
 };
 
-export const UserProvider = ({ children }: UserProviderProps) => {
+export const UserProvider = ({children}: UserProviderProps) => {
   const [user, setUserState] = useState<UserWithNoPassword | null>(null);
-  const { postLogin } = useAuthentication();
-  const { getUserByToken } = useUser();
+  const {postLogin} = useAuthentication();
+  const {getUserByToken, putUser} = useUser();
 
   const setUser = useCallback((u: UserWithNoPassword | null) => {
     setUserState(u);
@@ -31,7 +35,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       await SecureStore.deleteItemAsync(TOKEN_KEY);
       console.log((e as Error).message);
     }
-  }, [getUserByToken]);
+  }, []);
 
   const handleLogin = useCallback(
     async (credentials: Credentials) => {
@@ -55,9 +59,28 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     }
   }, []);
 
+  const handleUpdateProfile = async (data: UserUpdateCredentials) => {
+    try {
+      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      if (!token) return;
+      const result = await putUser(token, data);
+      setUserState(result.user);
+    } catch (e) {
+      console.log((e as Error).message);
+      throw e;
+    }
+  };
+
   return (
     <UserContext.Provider
-      value={{ user, setUser, handleLogin, handleLogout, handleAutoLogin }}
+      value={{
+        user,
+        setUser,
+        handleLogin,
+        handleLogout,
+        handleAutoLogin,
+        handleUpdateProfile,
+      }}
     >
       {children}
     </UserContext.Provider>

@@ -1,4 +1,4 @@
-import type { MediaItem, UserWithNoPassword } from './DBTypes';
+import type {MediaItem, UserWithNoPassword} from './DBTypes';
 
 type MessageResponse = {
   message: string;
@@ -20,7 +20,7 @@ type UserResponse = MessageResponse & {
 };
 
 type UserDeleteResponse = MessageResponse & {
-  user: { user_id: number };
+  user: {user_id: number};
 };
 
 type AvailableResponse = Partial<MessageResponse> & {

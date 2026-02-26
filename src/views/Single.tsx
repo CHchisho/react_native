@@ -2,7 +2,8 @@ import {Image, ScrollView} from 'react-native';
 import {Text, Card, Divider} from '@rneui/themed';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../../navigators/Navigator';
-import {useVideoPlayer, VideoView} from 'expo-video';
+import Likes from '../components/Likes';
+import Comments from '../components/Comments';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Single'>;
 
@@ -19,11 +20,14 @@ const Single = ({route}: Props) => {
       <Text h4 style={{marginBottom: 16}}>
         {item.title}
       </Text>
+      <Text style={{color: '#e63946', marginBottom: 12}}>
+        By: {item.username}
+      </Text>
 
       {item.description != null && item.description !== '' && (
         <Card>
           <Card.Title>Description</Card.Title>
-          <Divider />
+          <Card.Divider />
           <Text>{item.description}</Text>
         </Card>
       )}
@@ -37,6 +41,9 @@ const Single = ({route}: Props) => {
         />
       </Card>
 
+      <Likes item={item} />
+      <Comments mediaId={item.media_id} />
+
       {!isImage && !isVideo && (
         <Card containerStyle={{marginTop: 16}}>
           <Text style={{color: '#86939e'}}>Media type: {item.media_type}</Text>
@@ -45,25 +52,25 @@ const Single = ({route}: Props) => {
 
       <Card containerStyle={{marginTop: 16}}>
         <Card.Title>Created</Card.Title>
-        <Divider />
+        <Card.Divider />
         <Text>{new Date(item.created_at).toLocaleString('fi-FI')}</Text>
       </Card>
 
       <Card containerStyle={{marginTop: 16}}>
         <Card.Title>Size</Card.Title>
-        <Divider />
+        <Card.Divider />
         <Text>{item.filesize}</Text>
       </Card>
 
       <Card containerStyle={{marginTop: 16}}>
         <Card.Title>Type</Card.Title>
-        <Divider />
+        <Card.Divider />
         <Text>{item.media_type}</Text>
       </Card>
 
       <Card containerStyle={{marginTop: 16}}>
         <Card.Title>Owner</Card.Title>
-        <Divider />
+        <Card.Divider />
         <Text>{item.username}</Text>
       </Card>
     </ScrollView>

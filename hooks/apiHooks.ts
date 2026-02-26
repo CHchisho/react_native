@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import type {
   MediaItem,
   MediaItemWithOwner,
@@ -14,30 +14,38 @@ import type {
   MediaResponse,
   AvailableResponse,
 } from '../types/MessageTypes';
-import type { Credentials, RegisterCredentials } from '../types/LocalTypes';
-import { fetchData } from '../functions';
+import type {Credentials, RegisterCredentials} from '../types/LocalTypes';
+import {fetchData} from '../functions';
 
 const useFile = () => {
-  const postFile = async (file: File, token: string): Promise<UploadResponse> => {
+  const postFile = async (
+    file: File,
+    token: string,
+  ): Promise<UploadResponse> => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(process.env.EXPO_PUBLIC_UPLOAD_API + '/upload', {
-      method: 'POST',
-      headers: {
-        Authorization: 'Bearer ' + token,
+    const response = await fetch(
+      process.env.EXPO_PUBLIC_UPLOAD_API + '/upload',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+        body: formData,
       },
-      body: formData,
-    });
+    );
 
     const json = await response.json();
     if (!response.ok) {
-      throw new Error((json as { message?: string }).message || `Error ${response.status}`);
+      throw new Error(
+        (json as {message?: string}).message || `Error ${response.status}`,
+      );
     }
     return json as UploadResponse;
   };
 
-  return { postFile };
+  return {postFile};
 };
 
 const useMedia = () => {
@@ -57,7 +65,7 @@ const useMedia = () => {
             const user = await fetchData<UserWithNoPassword>(
               process.env.EXPO_PUBLIC_AUTH_API + '/users/' + item.user_id,
             );
-            return { ...item, username: user.username };
+            return {...item, username: user.username};
           }),
         );
 
@@ -105,11 +113,13 @@ const useMedia = () => {
     return result;
   };
 
-  return { mediaArray, postMedia };
+  return {mediaArray, postMedia};
 };
 
 const useAuthentication = () => {
-  const postLogin = async (credentials: Credentials): Promise<LoginResponse> => {
+  const postLogin = async (
+    credentials: Credentials,
+  ): Promise<LoginResponse> => {
     const fetchOptions: RequestInit = {
       method: 'POST',
       headers: {
@@ -124,7 +134,7 @@ const useAuthentication = () => {
     return loginResult;
   };
 
-  return { postLogin };
+  return {postLogin};
 };
 
 const useUser = () => {
@@ -143,31 +153,37 @@ const useUser = () => {
 
   const getUsernameAvailable = async (
     username: string,
-  ): Promise<{ available: boolean; message?: string }> => {
+  ): Promise<{available: boolean; message?: string}> => {
     try {
       const result = await fetchData<AvailableResponse>(
-        process.env.EXPO_PUBLIC_AUTH_API + '/users/username/' + encodeURIComponent(username),
+        process.env.EXPO_PUBLIC_AUTH_API +
+          '/users/username/' +
+          encodeURIComponent(username),
       );
-      return { available: result.available ?? false };
+      return {available: result.available ?? false};
     } catch (e) {
-      return { available: false, message: (e as Error).message };
+      return {available: false, message: (e as Error).message};
     }
   };
 
   const getEmailAvailable = async (
     email: string,
-  ): Promise<{ available: boolean; message?: string }> => {
+  ): Promise<{available: boolean; message?: string}> => {
     try {
       const result = await fetchData<AvailableResponse>(
-        process.env.EXPO_PUBLIC_AUTH_API + '/users/email/' + encodeURIComponent(email),
+        process.env.EXPO_PUBLIC_AUTH_API +
+          '/users/email/' +
+          encodeURIComponent(email),
       );
-      return { available: result.available ?? false };
+      return {available: result.available ?? false};
     } catch (e) {
-      return { available: false, message: (e as Error).message };
+      return {available: false, message: (e as Error).message};
     }
   };
 
-  const postRegister = async (credentials: RegisterCredentials): Promise<MessageResponse> => {
+  const postRegister = async (
+    credentials: RegisterCredentials,
+  ): Promise<MessageResponse> => {
     const fetchOptions: RequestInit = {
       method: 'POST',
       headers: {
@@ -182,12 +198,36 @@ const useUser = () => {
     return registerResult;
   };
 
-  return { getUserByToken, getUsernameAvailable, getEmailAvailable, postRegister };
+  const putUser = async (
+    token: string,
+    data: {username?: string; email?: string; password?: string},
+  ): Promise<UserResponse> => {
+    const fetchOptions: RequestInit = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+      body: JSON.stringify(data),
+    };
+    return fetchData<UserResponse>(
+      process.env.EXPO_PUBLIC_AUTH_API + '/users',
+      fetchOptions,
+    );
+  };
+
+  return {
+    getUserByToken,
+    getUsernameAvailable,
+    getEmailAvailable,
+    postRegister,
+    putUser,
+  };
 };
 
 const useLike = () => {
   const postLike = async (media_id: number, token: string) => {
-    await fetchData<{ message: string; like_id?: number }>(
+    await fetchData<{message: string; like_id?: number}>(
       process.env.EXPO_PUBLIC_MEDIA_API + '/likes',
       {
         method: 'POST',
@@ -195,13 +235,13 @@ const useLike = () => {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token,
         },
-        body: JSON.stringify({ media_id }),
+        body: JSON.stringify({media_id}),
       },
     );
   };
 
   const deleteLike = async (like_id: number, token: string) => {
-    await fetchData<{ message: string }>(
+    await fetchData<{message: string}>(
       process.env.EXPO_PUBLIC_MEDIA_API + '/likes/' + like_id,
       {
         method: 'DELETE',
@@ -213,13 +253,16 @@ const useLike = () => {
   };
 
   const getCountByMediaId = async (media_id: number) => {
-    const result = await fetchData<{ count: number }>(
+    const result = await fetchData<{count: number}>(
       process.env.EXPO_PUBLIC_MEDIA_API + '/likes/count/' + media_id,
     );
     return result.count;
   };
 
-  const getUserLike = async (media_id: number, token: string): Promise<Like | null> => {
+  const getUserLike = async (
+    media_id: number,
+    token: string,
+  ): Promise<Like | null> => {
     try {
       const like = await fetchData<Like>(
         process.env.EXPO_PUBLIC_MEDIA_API + '/likes/bymedia/user/' + media_id,
@@ -235,10 +278,10 @@ const useLike = () => {
     }
   };
 
-  return { postLike, deleteLike, getCountByMediaId, getUserLike };
+  return {postLike, deleteLike, getCountByMediaId, getUserLike};
 };
 
-type CommentWithUsername = Partial<Comment & { username: string }>;
+type CommentWithUsername = Partial<Comment & {username: string}>;
 
 const useComment = () => {
   const postComment = async (
@@ -246,7 +289,7 @@ const useComment = () => {
     media_id: number,
     token: string,
   ) => {
-    await fetchData<{ message: string; comment_id?: number }>(
+    await fetchData<{message: string; comment_id?: number}>(
       process.env.EXPO_PUBLIC_MEDIA_API + '/comments',
       {
         method: 'POST',
@@ -254,7 +297,7 @@ const useComment = () => {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token,
         },
-        body: JSON.stringify({ comment_text, media_id }),
+        body: JSON.stringify({comment_text, media_id}),
       },
     );
   };
@@ -270,13 +313,13 @@ const useComment = () => {
         const user = await fetchData<UserWithNoPassword>(
           process.env.EXPO_PUBLIC_AUTH_API + '/users/' + comment.user_id,
         );
-        return { ...comment, username: user.username };
+        return {...comment, username: user.username};
       }),
     );
     return commentsWithUsername;
   };
 
-  return { postComment, getCommentsByMediaId };
+  return {postComment, getCommentsByMediaId};
 };
 
-export { useMedia, useFile, useAuthentication, useUser, useLike, useComment };
+export {useMedia, useFile, useAuthentication, useUser, useLike, useComment};
