@@ -11,3 +11,4 @@ const useUserContext = () => {
 };
 
 export {useUserContext};
+export {useUpdateContext} from './useUpdateContext';
