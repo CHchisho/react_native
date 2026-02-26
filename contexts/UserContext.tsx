@@ -1,5 +1,5 @@
 import React, {createContext, useState, useCallback} from 'react';
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {UserWithNoPassword} from '../types/DBTypes';
 import type {
   AuthContextType,
@@ -27,12 +27,12 @@ export const UserProvider = ({children}: UserProviderProps) => {
 
   const handleAutoLogin = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      const token = await AsyncStorage.getItem(TOKEN_KEY);
       if (!token) return;
       const userResult = await getUserByToken(token);
       setUserState(userResult.user);
     } catch (e) {
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      await AsyncStorage.removeItem(TOKEN_KEY);
       console.log((e as Error).message);
     }
   }, []);
@@ -41,7 +41,7 @@ export const UserProvider = ({children}: UserProviderProps) => {
     async (credentials: Credentials) => {
       try {
         const loginResult = await postLogin(credentials);
-        await SecureStore.setItemAsync(TOKEN_KEY, loginResult.token);
+        await AsyncStorage.setItem(TOKEN_KEY, loginResult.token);
         setUserState(loginResult.user);
       } catch (e) {
         console.log((e as Error).message);
@@ -52,7 +52,7 @@ export const UserProvider = ({children}: UserProviderProps) => {
 
   const handleLogout = useCallback(async () => {
     try {
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      await AsyncStorage.removeItem(TOKEN_KEY);
       setUserState(null);
     } catch (e) {
       console.log((e as Error).message);
@@ -61,7 +61,7 @@ export const UserProvider = ({children}: UserProviderProps) => {
 
   const handleUpdateProfile = async (data: UserUpdateCredentials) => {
     try {
-      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      const token = await AsyncStorage.getItem(TOKEN_KEY);
       if (!token) return;
       const result = await putUser(token, data);
       setUserState(result.user);
