@@ -38,10 +38,6 @@ const Profile = ({navigation}: ProfileScreenProps) => {
       style={{flex: 1}}
       contentContainerStyle={{padding: 16, paddingBottom: 32}}
     >
-      <Text h4 style={{marginBottom: 16}}>
-        Profile
-      </Text>
-
       <Card containerStyle={{marginBottom: 16}}>
         <Card.Title>User data</Card.Title>
         <Card.Divider />

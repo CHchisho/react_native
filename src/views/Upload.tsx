@@ -7,15 +7,40 @@ import {
   Text as RNText,
   Alert,
   ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
-import {Text, Card, Button, Input} from '@rneui/themed';
+import {Card, Button, Input} from '@rneui/themed';
 import {useForm, Controller} from 'react-hook-form';
 import * as ImagePicker from 'expo-image-picker';
+import {useVideoPlayer, VideoView} from 'expo-video';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import type {TabParamList} from '../../navigators/Navigator';
 import {useFile, useMedia} from '../../hooks/apiHooks';
 import {useUpdateContext} from '../../hooks/ContextHooks';
+
+function isVideoAsset(asset: ImagePicker.ImagePickerAsset): boolean {
+  return (
+    asset.type === 'video' ||
+    (typeof asset.mimeType === 'string' && asset.mimeType.startsWith('video/'))
+  );
+}
+
+function UploadVideoPreview({uri}: {uri: string}) {
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = false;
+  });
+  return (
+    <VideoView
+      style={styles.previewVideo}
+      player={player}
+      contentFit="contain"
+      nativeControls={true}
+      allowsFullscreen
+      allowsPictureInPicture
+    />
+  );
+}
 
 type Props = BottomTabScreenProps<TabParamList, 'Upload'>;
 
@@ -117,29 +142,21 @@ const Upload = ({navigation}: Props) => {
 
         <TouchableOpacity onPress={pickImage} activeOpacity={0.9}>
           {image?.assets[0].uri ? (
-            <Image
-              source={{uri: image.assets[0].uri}}
-              style={{
-                width: '100%',
-                height: 200,
-                borderRadius: 8,
-                backgroundColor: '#374151',
-              }}
-              resizeMode="cover"
-            />
+            isVideoAsset(image.assets[0]) ? (
+              <View style={styles.previewVideoWrapper}>
+                <UploadVideoPreview uri={image.assets[0].uri} />
+              </View>
+            ) : (
+              <Image
+                source={{uri: image.assets[0].uri}}
+                style={styles.previewImage}
+                resizeMode="cover"
+              />
+            )
           ) : (
-            <View
-              style={{
-                width: '100%',
-                height: 200,
-                borderRadius: 8,
-                backgroundColor: '#374151',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <RNText style={{color: '#9ca3af', fontSize: 16}}>
-                Tap to select image
+            <View style={styles.previewPlaceholder}>
+              <RNText style={styles.previewPlaceholderText}>
+                Tap to select image or video
               </RNText>
             </View>
           )}
@@ -227,5 +244,38 @@ const Upload = ({navigation}: Props) => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  previewImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    backgroundColor: '#374151',
+  },
+  previewVideoWrapper: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
+  previewVideo: {
+    flex: 1,
+    width: '100%',
+    height: 200,
+  },
+  previewPlaceholder: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    backgroundColor: '#374151',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewPlaceholderText: {
+    color: '#9ca3af',
+    fontSize: 16,
+  },
+});
 
 export default Upload;
