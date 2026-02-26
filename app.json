@@ -15,7 +15,8 @@
     "scheme": "react_native",
     "plugins": [
       "expo-asset",
-      "expo-video"
+      "expo-video",
+      "expo-secure-store"
     ]
   }
 }

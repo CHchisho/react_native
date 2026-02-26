@@ -2,13 +2,16 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { Icon } from '@rneui/themed';
+import { useUserContext } from '../hooks/ContextHooks';
 import { colors } from '../src/constants/theme';
 import Home from '../src/views/Home';
 import Single from '../src/views/Single';
 import Profile from '../src/views/Profile';
+import Login from '../src/views/Login';
 import type { MediaItemWithOwner } from '../types/DBTypes';
 
 export type RootStackParamList = {
+  Login: undefined;
   Tabs: undefined;
   Single: { item: MediaItemWithOwner };
 };
@@ -60,9 +63,27 @@ const StackScreen = () => {
 };
 
 const Navigator = () => {
+  const { user } = useUserContext();
+
   return (
     <NavigationContainer>
-      <StackScreen />
+      {user == null ? (
+        <Stack.Navigator
+          screenOptions={{
+            headerTintColor: colors.accent,
+            headerStyle: { backgroundColor: '#1f2937' },
+            headerTitleStyle: { color: '#e5e7eb' },
+          }}
+        >
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+      ) : (
+        <StackScreen />
+      )}
     </NavigationContainer>
   );
 };
