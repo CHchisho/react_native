@@ -17,10 +17,15 @@ export type RootStackParamList = {
   Tabs: undefined;
   Single: {item: MediaItemWithOwner};
   MyFiles: undefined;
-  Upload: undefined;
 };
 
-const Tab = createBottomTabNavigator();
+export type TabParamList = {
+  Home: undefined;
+  Upload: undefined;
+  Profile: undefined;
+};
+
+const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const TabScreen = () => {
@@ -33,7 +38,12 @@ const TabScreen = () => {
           <Icon
             type="material"
             iconProps={{
-              name: route.name === 'Home' ? 'home' : 'person',
+              name:
+                route.name === 'Home'
+                  ? 'home'
+                  : route.name === 'Upload'
+                    ? 'add-photo-alternate'
+                    : 'person',
               size: size ?? 24,
               color,
             }}
@@ -42,6 +52,11 @@ const TabScreen = () => {
       })}
     >
       <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen
+        name="Upload"
+        component={Upload}
+        options={{title: 'Add photo'}}
+      />
       <Tab.Screen name="Profile" component={Profile} />
     </Tab.Navigator>
   );
@@ -66,11 +81,6 @@ const StackScreen = () => {
         name="MyFiles"
         component={MyFiles}
         options={{title: 'My files'}}
-      />
-      <Stack.Screen
-        name="Upload"
-        component={Upload}
-        options={{title: 'Add photo'}}
       />
     </Stack.Navigator>
   );

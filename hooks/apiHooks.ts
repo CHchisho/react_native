@@ -1,4 +1,9 @@
 import {useEffect, useState} from 'react';
+import {
+  uploadAsync as uploadAsyncLegacy,
+  FileSystemUploadType,
+} from 'expo-file-system/legacy';
+import {useUpdateContext} from './useUpdateContext';
 import type {
   MediaItem,
   MediaItemWithOwner,
@@ -18,6 +23,8 @@ import type {Credentials, RegisterCredentials} from '../types/LocalTypes';
 import {fetchData} from '../functions';
 
 const useFile = () => {
+  const [uploadLoading, setUploadLoading] = useState(false);
+
   const postFile = async (
     file: File,
     token: string,
@@ -45,11 +52,46 @@ const useFile = () => {
     return json as UploadResponse;
   };
 
-  return {postFile};
+  const postExpoFile = async (
+    imageUri: string,
+    token: string,
+  ): Promise<UploadResponse | null> => {
+    setUploadLoading(true);
+    try {
+      const uploadUrl = process.env.EXPO_PUBLIC_UPLOAD_API + '/upload';
+      const fileResult = await uploadAsyncLegacy(uploadUrl, imageUri, {
+        httpMethod: 'POST',
+        uploadType: FileSystemUploadType.MULTIPART,
+        fieldName: 'file',
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      });
+
+      if (!fileResult.body) {
+        console.warn('postExpoFile: empty body', fileResult.status);
+        return null;
+      }
+      try {
+        return JSON.parse(fileResult.body) as UploadResponse;
+      } catch {
+        console.warn('postExpoFile: invalid JSON', fileResult.body?.slice(0, 200));
+        return null;
+      }
+    } catch (err) {
+      console.error('postExpoFile error:', err);
+      throw err;
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
+  return {postFile, postExpoFile, uploadLoading};
 };
 
 const useMedia = () => {
   const [mediaArray, setMediaArray] = useState<MediaItemWithOwner[]>([]);
+  const {update} = useUpdateContext();
 
   useEffect(() => {
     let ignore = false;
@@ -82,7 +124,7 @@ const useMedia = () => {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [update]);
 
   const postMedia = async (
     file: UploadResponse,

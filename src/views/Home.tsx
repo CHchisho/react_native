@@ -1,14 +1,13 @@
 import {View, FlatList} from 'react-native';
 import {Text, Button} from '@rneui/themed';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import MediaListItem from '../components/MediaListItem';
 import {useMedia} from '../../hooks/apiHooks';
 import type {MediaItemWithOwner} from '../../types/DBTypes';
-import type {RootStackParamList} from '../../navigators/Navigator';
+import type {RootStackParamList, TabParamList} from '../../navigators/Navigator';
 
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
-};
+type HomeScreenProps = BottomTabScreenProps<TabParamList, 'Home'>;
 
 const Home = ({navigation}: HomeScreenProps) => {
   const {mediaArray} = useMedia();
@@ -18,7 +17,7 @@ const Home = ({navigation}: HomeScreenProps) => {
   >;
 
   const openUpload = () => {
-    stackNavigation?.navigate('Upload');
+    navigation.navigate('Upload');
   };
 
   const handleView = (item: MediaItemWithOwner) => {

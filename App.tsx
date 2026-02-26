@@ -1,16 +1,22 @@
+import {useMemo} from 'react';
 import {StatusBar} from 'expo-status-bar';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {ThemeProvider} from '@rneui/themed';
+import {ThemeProvider, createTheme} from '@rneui/themed';
 import {UserProvider} from './contexts/UserContext';
+import {UpdateProvider} from './contexts/UpdateContext';
 import Navigator from './navigators/Navigator';
 
 const App = () => {
+  const theme = useMemo(() => createTheme({}), []);
+
   return (
     <>
       <SafeAreaProvider>
-        <ThemeProvider>
+        <ThemeProvider theme={theme}>
           <UserProvider>
-            <Navigator />
+            <UpdateProvider>
+              <Navigator />
+            </UpdateProvider>
           </UserProvider>
         </ThemeProvider>
       </SafeAreaProvider>
