@@ -6,6 +6,7 @@ import {useUserContext} from '../hooks/ContextHooks';
 import {colors} from '../src/constants/theme';
 import Home from '../src/views/Home';
 import Single from '../src/views/Single';
+import Modify from '../src/views/Modify';
 import Profile from '../src/views/Profile';
 import Login from '../src/views/Login';
 import MyFiles from '../src/views/MyFiles';
@@ -16,6 +17,7 @@ export type RootStackParamList = {
   Login: undefined;
   Tabs: undefined;
   Single: {item: MediaItemWithOwner};
+  Modify: {item: MediaItemWithOwner};
   MyFiles: undefined;
 };
 
@@ -77,6 +79,11 @@ const StackScreen = () => {
         options={{headerShown: false}}
       />
       <Stack.Screen name="Single" component={Single} />
+      <Stack.Screen
+        name="Modify"
+        component={Modify}
+        options={{title: 'Modify media'}}
+      />
       <Stack.Screen
         name="MyFiles"
         component={MyFiles}

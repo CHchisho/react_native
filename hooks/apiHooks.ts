@@ -75,7 +75,10 @@ const useFile = () => {
       try {
         return JSON.parse(fileResult.body) as UploadResponse;
       } catch {
-        console.warn('postExpoFile: invalid JSON', fileResult.body?.slice(0, 200));
+        console.warn(
+          'postExpoFile: invalid JSON',
+          fileResult.body?.slice(0, 200),
+        );
         return null;
       }
     } catch (err) {
@@ -155,7 +158,51 @@ const useMedia = () => {
     return result;
   };
 
-  return {mediaArray, postMedia};
+  const putMedia = async (
+    media_id: number,
+    inputs: Record<string, string>,
+    token: string,
+  ): Promise<MediaResponse> => {
+    const mediaData = {
+      title: inputs.title,
+      description: inputs.description || null,
+    };
+
+    const fetchOptions: RequestInit = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+      body: JSON.stringify(mediaData),
+    };
+
+    const result = await fetchData<MediaResponse>(
+      process.env.EXPO_PUBLIC_MEDIA_API + '/media/' + media_id,
+      fetchOptions,
+    );
+    return result;
+  };
+
+  const deleteMedia = async (
+    media_id: number,
+    token: string,
+  ): Promise<MessageResponse> => {
+    const fetchOptions: RequestInit = {
+      method: 'DELETE',
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+    };
+
+    const result = await fetchData<MessageResponse>(
+      process.env.EXPO_PUBLIC_MEDIA_API + '/media/' + media_id,
+      fetchOptions,
+    );
+    return result;
+  };
+
+  return {mediaArray, postMedia, putMedia, deleteMedia};
 };
 
 const useAuthentication = () => {

@@ -1,16 +1,22 @@
-import {View, FlatList} from 'react-native';
+import {View, FlatList, Alert} from 'react-native';
 import {Text, Button} from '@rneui/themed';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import MediaListItem from '../components/MediaListItem';
 import {useMedia} from '../../hooks/apiHooks';
+import {useUpdateContext} from '../../hooks/ContextHooks';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {MediaItemWithOwner} from '../../types/DBTypes';
-import type {RootStackParamList, TabParamList} from '../../navigators/Navigator';
+import type {
+  RootStackParamList,
+  TabParamList,
+} from '../../navigators/Navigator';
 
 type HomeScreenProps = BottomTabScreenProps<TabParamList, 'Home'>;
 
 const Home = ({navigation}: HomeScreenProps) => {
-  const {mediaArray} = useMedia();
+  const {mediaArray, deleteMedia} = useMedia();
+  const {setUpdate} = useUpdateContext();
   const stackNavigation = navigation.getParent() as NativeStackNavigationProp<
     RootStackParamList,
     'Tabs'
@@ -25,11 +31,34 @@ const Home = ({navigation}: HomeScreenProps) => {
   };
 
   const handleModify = (item: MediaItemWithOwner) => {
-    console.log('modify', item);
+    stackNavigation?.navigate('Modify', {item});
   };
 
   const handleDelete = (item: MediaItemWithOwner) => {
-    console.log('delete', item);
+    Alert.alert(
+      'Delete media',
+      `Delete "${item.title}"? This cannot be undone.`,
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem('token');
+              if (!token) return;
+              await deleteMedia(item.media_id, token);
+              setUpdate((u) => !u);
+            } catch (e) {
+              Alert.alert(
+                'Error',
+                e instanceof Error ? e.message : 'Failed to delete',
+              );
+            }
+          },
+        },
+      ],
+    );
   };
 
   const renderItem = ({item}: {item: MediaItemWithOwner}) => (
@@ -46,22 +75,6 @@ const Home = ({navigation}: HomeScreenProps) => {
 
   return (
     <View style={{flex: 1, padding: 16}}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 16,
-        }}
-      >
-        <Text h3>My Media</Text>
-        <Button
-          title="Add photo"
-          onPress={openUpload}
-          type="clear"
-          titleStyle={{fontSize: 14}}
-        />
-      </View>
       <FlatList
         data={mediaArray}
         renderItem={renderItem}

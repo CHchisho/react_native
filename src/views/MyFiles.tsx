@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {View, FlatList} from 'react-native';
+import {View, FlatList, Alert} from 'react-native';
 import {Text} from '@rneui/themed';
 import type {
   NativeStackNavigationProp,
@@ -8,14 +8,16 @@ import type {
 import type {RootStackParamList} from '../../navigators/Navigator';
 import type {MediaItemWithOwner} from '../../types/DBTypes';
 import {useMedia} from '../../hooks/apiHooks';
-import {useUserContext} from '../../hooks/ContextHooks';
+import {useUserContext, useUpdateContext} from '../../hooks/ContextHooks';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MediaListItem from '../components/MediaListItem';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MyFiles'>;
 
 const MyFiles = ({navigation}: Props) => {
   const {user} = useUserContext();
-  const {mediaArray} = useMedia();
+  const {mediaArray, deleteMedia} = useMedia();
+  const {setUpdate} = useUpdateContext();
 
   const myMedia = useMemo(() => {
     if (!user) return [];
@@ -32,11 +34,34 @@ const MyFiles = ({navigation}: Props) => {
   };
 
   const handleModify = (item: MediaItemWithOwner) => {
-    console.log('modify', item);
+    navigation.navigate('Modify', {item});
   };
 
   const handleDelete = (item: MediaItemWithOwner) => {
-    console.log('delete', item);
+    Alert.alert(
+      'Delete media',
+      `Delete "${item.title}"? This cannot be undone.`,
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem('token');
+              if (!token) return;
+              await deleteMedia(item.media_id, token);
+              setUpdate((u) => !u);
+            } catch (e) {
+              Alert.alert(
+                'Error',
+                e instanceof Error ? e.message : 'Failed to delete',
+              );
+            }
+          },
+        },
+      ],
+    );
   };
 
   const renderItem = ({item}: {item: MediaItemWithOwner}) => (
@@ -53,9 +78,6 @@ const MyFiles = ({navigation}: Props) => {
 
   return (
     <View style={{flex: 1, padding: 16}}>
-      <Text h4 style={{marginBottom: 16}}>
-        My files
-      </Text>
       <FlatList
         data={myMedia}
         renderItem={renderItem}
