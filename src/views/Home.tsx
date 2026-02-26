@@ -1,23 +1,28 @@
-import { View, FlatList } from 'react-native';
-import { Text } from '@rneui/themed';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import {View, FlatList} from 'react-native';
+import {Text, Button} from '@rneui/themed';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import MediaListItem from '../components/MediaListItem';
-import { useMedia } from '../../hooks/apiHooks';
-import type { MediaItemWithOwner } from '../../types/DBTypes';
-import type { RootStackParamList } from '../../navigators/Navigator';
+import {useMedia} from '../../hooks/apiHooks';
+import type {MediaItemWithOwner} from '../../types/DBTypes';
+import type {RootStackParamList} from '../../navigators/Navigator';
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 };
 
-const Home = ({ navigation }: HomeScreenProps) => {
-  const { mediaArray } = useMedia();
-  const stackNavigation = navigation.getParent() as
-    | NativeStackNavigationProp<RootStackParamList, 'Tabs'>
-    | undefined;
+const Home = ({navigation}: HomeScreenProps) => {
+  const {mediaArray} = useMedia();
+  const stackNavigation = navigation.getParent() as NativeStackNavigationProp<
+    RootStackParamList,
+    'Tabs'
+  >;
+
+  const openUpload = () => {
+    stackNavigation?.navigate('Upload');
+  };
 
   const handleView = (item: MediaItemWithOwner) => {
-    stackNavigation?.navigate('Single', { item });
+    stackNavigation?.navigate('Single', {item});
   };
 
   const handleModify = (item: MediaItemWithOwner) => {
@@ -28,7 +33,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
     console.log('delete', item);
   };
 
-  const renderItem = ({ item }: { item: MediaItemWithOwner }) => (
+  const renderItem = ({item}: {item: MediaItemWithOwner}) => (
     <MediaListItem
       navigation={stackNavigation}
       item={item}
@@ -41,10 +46,23 @@ const Home = ({ navigation }: HomeScreenProps) => {
   const keyExtractor = (item: MediaItemWithOwner) => String(item.media_id);
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Text h3 style={{ marginBottom: 16 }}>
-        My Media
-      </Text>
+    <View style={{flex: 1, padding: 16}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 16,
+        }}
+      >
+        <Text h3>My Media</Text>
+        <Button
+          title="Add photo"
+          onPress={openUpload}
+          type="clear"
+          titleStyle={{fontSize: 14}}
+        />
+      </View>
       <FlatList
         data={mediaArray}
         renderItem={renderItem}

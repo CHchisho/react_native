@@ -1,53 +1,66 @@
 import {useForm, Controller} from 'react-hook-form';
 import {Card, Input, Button} from '@rneui/themed';
+import {useUserContext} from '../../hooks/ContextHooks';
 import {useUser} from '../../hooks/apiHooks';
-import type {RegisterCredentials} from '../../types/LocalTypes';
 
-type RegisterFormValues = RegisterCredentials & {confirmPassword: string};
+type ProfileUpdateFormValues = {
+  username: string;
+  email: string;
+  password: string;
+};
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-const MIN_PASSWORD_LENGTH = 5;
 
-const RegisterForm = () => {
-  const {postRegister, getUsernameAvailable, getEmailAvailable} = useUser();
-  const initValues: RegisterFormValues = {
-    username: '',
-    password: '',
-    email: '',
-    confirmPassword: '',
-  };
+type ProfileUpdateFormProps = {
+  onSuccess: () => void;
+};
+
+const ProfileUpdateForm = ({onSuccess}: ProfileUpdateFormProps) => {
+  const {user, handleUpdateProfile} = useUserContext();
+  const {getUsernameAvailable, getEmailAvailable} = useUser();
+
   const {
     control,
     handleSubmit,
-    getValues,
     formState: {errors},
-  } = useForm<RegisterFormValues>({
-    defaultValues: initValues,
+  } = useForm<ProfileUpdateFormValues>({
+    defaultValues: {
+      username: user?.username ?? '',
+      email: user?.email ?? '',
+      password: '',
+    },
     mode: 'onBlur',
   });
 
-  const doRegister = async (inputs: RegisterFormValues) => {
-    const {confirmPassword: _, ...apiData} = inputs;
+  const doUpdate = async (inputs: ProfileUpdateFormValues) => {
+    if (!handleUpdateProfile) return;
+    const data: {username?: string; email?: string; password?: string} = {};
+    if (inputs.username.trim()) data.username = inputs.username.trim();
+    if (inputs.email.trim()) data.email = inputs.email.trim();
+    if (inputs.password.trim()) data.password = inputs.password;
     try {
-      await postRegister(apiData as RegisterCredentials);
-      console.log('Registration successful');
-    } catch (error) {
-      console.error('Register error:', error);
+      await handleUpdateProfile(data);
+      onSuccess();
+    } catch (e) {
+      console.error(e);
     }
   };
 
   return (
-    <Card>
+    <Card containerStyle={{marginBottom: 16}}>
+      <Card.Title>Update profile</Card.Title>
+      <Card.Divider />
       <Controller
         control={control}
+        name="username"
         rules={{
           required: {value: true, message: 'is required'},
           validate: async (value) => {
+            if (value === user?.username) return true;
             try {
               const {available} = await getUsernameAvailable(value);
               return available ? true : 'Username taken';
-            } catch (error) {
-              console.log((error as Error).message);
+            } catch {
               return 'Username check failed';
             }
           },
@@ -62,23 +75,19 @@ const RegisterForm = () => {
             errorMessage={errors.username?.message}
           />
         )}
-        name="username"
       />
-
       <Controller
         control={control}
+        name="email"
         rules={{
           required: {value: true, message: 'is required'},
-          pattern: {
-            value: EMAIL_REGEX,
-            message: 'not a valid email',
-          },
+          pattern: {value: EMAIL_REGEX, message: 'not a valid email'},
           validate: async (value) => {
+            if (value === user?.email) return true;
             try {
               const {available} = await getEmailAvailable(value);
               return available ? true : 'Email already in use';
-            } catch (error) {
-              console.log((error as Error).message);
+            } catch {
               return 'Email check failed';
             }
           },
@@ -94,21 +103,14 @@ const RegisterForm = () => {
             errorMessage={errors.email?.message}
           />
         )}
-        name="email"
       />
-
       <Controller
         control={control}
-        rules={{
-          required: {value: true, message: 'is required'},
-          minLength: {
-            value: MIN_PASSWORD_LENGTH,
-            message: `min ${MIN_PASSWORD_LENGTH} characters`,
-          },
-        }}
+        name="password"
+        rules={{}}
         render={({field: {onChange, onBlur, value}}) => (
           <Input
-            placeholder="Password"
+            placeholder="New password"
             secureTextEntry
             onBlur={onBlur}
             onChangeText={onChange}
@@ -116,31 +118,10 @@ const RegisterForm = () => {
             errorMessage={errors.password?.message}
           />
         )}
-        name="password"
       />
-
-      <Controller
-        control={control}
-        rules={{
-          required: {value: true, message: 'is required'},
-          validate: (value) =>
-            value === getValues('password') ? true : 'Passwords must match',
-        }}
-        render={({field: {onChange, onBlur, value}}) => (
-          <Input
-            placeholder="Confirm password"
-            secureTextEntry
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            errorMessage={errors.confirmPassword?.message}
-          />
-        )}
-        name="confirmPassword"
-      />
-      <Button title="Register" onPress={handleSubmit(doRegister)} />
+      <Button title="Save" onPress={handleSubmit(doUpdate)} />
     </Card>
   );
 };
 
-export default RegisterForm;
+export default ProfileUpdateForm;

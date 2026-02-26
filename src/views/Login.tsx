@@ -1,24 +1,24 @@
-import { useEffect, useState } from 'react';
-import { View, ScrollView } from 'react-native';
-import { Text, Button } from '@rneui/themed';
-import { useUserContext } from '../../hooks/ContextHooks';
+import {useEffect, useState} from 'react';
+import {View, ScrollView} from 'react-native';
+import {Text, Button} from '@rneui/themed';
+import {useUserContext} from '../../hooks/ContextHooks';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
 
 const Login = () => {
-  const { handleAutoLogin } = useUserContext();
+  const {handleAutoLogin} = useUserContext();
   const [showRegister, setShowRegister] = useState(false);
 
   useEffect(() => {
     handleAutoLogin();
-  }, [handleAutoLogin]);
+  }, []);
 
   return (
     <ScrollView
-      contentContainerStyle={{ flexGrow: 1, padding: 16, paddingBottom: 32 }}
+      contentContainerStyle={{flexGrow: 1, padding: 16, paddingBottom: 32}}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={{ marginBottom: 24 }}>
+      <View style={{marginBottom: 24}}>
         {showRegister ? (
           <>
             <RegisterForm />
@@ -26,7 +26,7 @@ const Login = () => {
               type="clear"
               title="Already have an account? Log in"
               onPress={() => setShowRegister(false)}
-              titleStyle={{ fontSize: 14 }}
+              titleStyle={{fontSize: 14}}
             />
           </>
         ) : (
@@ -36,7 +36,7 @@ const Login = () => {
               type="clear"
               title="No account yet? Register"
               onPress={() => setShowRegister(true)}
-              titleStyle={{ fontSize: 14 }}
+              titleStyle={{fontSize: 14}}
             />
           </>
         )}
