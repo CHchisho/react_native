@@ -1,11 +1,9 @@
 import {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {Text, Input, Button} from '@rneui/themed';
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useComment} from '../../hooks/apiHooks';
 import {useUserContext} from '../../hooks/ContextHooks';
-
-const TOKEN_KEY = 'token';
 
 type CommentWithUsername = {
   comment_id: number;
@@ -43,7 +41,7 @@ const Comments = ({mediaId}: CommentsProps) => {
   const handleSubmit = async () => {
     if (!commentText.trim()) return;
     try {
-      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      const token = await AsyncStorage.getItem('token');
       if (!token) return;
       setLoading(true);
       await postComment(commentText.trim(), mediaId, token);

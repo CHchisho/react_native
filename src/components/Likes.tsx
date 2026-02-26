@@ -1,12 +1,10 @@
 import {useReducer, useEffect} from 'react';
 import {View} from 'react-native';
 import {Text, Button} from '@rneui/themed';
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {MediaItemWithOwner, Like} from '../../types/DBTypes';
 import {useLike} from '../../hooks/apiHooks';
 import {useUserContext} from '../../hooks/ContextHooks';
-
-const TOKEN_KEY = 'token';
 
 type LikeState = {
   count: number;
@@ -50,7 +48,7 @@ const Likes = ({item}: LikesProps) => {
   const loadUserLike = async () => {
     if (!item) return;
     try {
-      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      const token = await AsyncStorage.getItem('token');
       if (!token) {
         dispatch({type: 'like', like: null});
         return;
@@ -69,7 +67,7 @@ const Likes = ({item}: LikesProps) => {
 
   const handleLike = async () => {
     try {
-      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      const token = await AsyncStorage.getItem('token');
       if (!item || !token) return;
       if (state.userLike) {
         await deleteLike(state.userLike.like_id, token);

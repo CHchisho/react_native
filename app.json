@@ -13,6 +13,6 @@
       "package": "com.reactnative.app"
     },
     "scheme": "react_native",
-    "plugins": ["expo-asset", "expo-video", "expo-secure-store"]
+    "plugins": ["expo-asset", "expo-video"]
   }
 }
